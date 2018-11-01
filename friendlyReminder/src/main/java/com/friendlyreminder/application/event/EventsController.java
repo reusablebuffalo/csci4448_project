@@ -45,8 +45,7 @@ public class EventsController {
             communicationEventRepository.save(new_event);
             contactsFound.get(0).addCommunicationEvent(new_event);
             contactRepository.save(contactsFound.get(0));
-            final String successfulSaveMessage = "Event saved for " + contactsFound.get(0).getFirstName() + " " + contactsFound.get(0).getLastName();
-            return successfulSaveMessage; // eventually will redirect back to home after add
+            return "Event saved for " + contactsFound.get(0).toString(); // eventually will redirect back to home after add
         }
     }
 

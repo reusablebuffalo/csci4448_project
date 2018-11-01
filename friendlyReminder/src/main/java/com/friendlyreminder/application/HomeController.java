@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class HomeController {
 
-    @Value("${home.message}")
-    private String message;
+    @Value("${home.author}")
+    private String author;
 
     @RequestMapping("/")
 //    public String index() {
 //        return "Greetings from Ian Smith";
 //    }
     public String welcome(Model model) {
-        model.addAttribute("message", message);
+        model.addAttribute("author", author);
         return "home";
     }
 
