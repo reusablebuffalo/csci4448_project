@@ -23,9 +23,6 @@ public class CommunicationEvent {
     @Embedded
     private DateTime dateTime;
 
-//    @ManyToOne
-//    private Contact contacted;
-
     public CommunicationEvent (){
 
     }

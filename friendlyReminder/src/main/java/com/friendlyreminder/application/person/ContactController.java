@@ -2,7 +2,7 @@ package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.event.CommunicationEventRepository;
-import com.friendlyreminder.application.util.DateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller    // This means that this class is a Controller
-@RequestMapping(path="/contacts") // This means URL's start with /contacts (after Application path)
+@Controller
+@RequestMapping(path="/contacts") // This means URL's start with /contacts
 public class ContactController {
 
     // This means to get the bean called contactRepository
@@ -41,6 +41,7 @@ public class ContactController {
         contactRepository.save(n);
         return "Contact Saved To Contact Book"; // eventually will redirect back to home after add
     }
+
 
     @GetMapping(path="/all")
     public @ResponseBody Iterable<Contact> getAllContacts() {
