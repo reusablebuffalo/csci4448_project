@@ -17,7 +17,11 @@ public class Contact extends Person {
     private RelativeImportance relativeImportance;
 
     @OneToMany
-    private List<CommunicationEvent> communicationEvents = new ArrayList<>();
+    private List<CommunicationEvent> communicationEvents;
+
+    public Contact(){
+        communicationEvents = new ArrayList<>();
+    }
 
     public void addCommunicationEvent(CommunicationEvent event){
         communicationEvents.add(event);
