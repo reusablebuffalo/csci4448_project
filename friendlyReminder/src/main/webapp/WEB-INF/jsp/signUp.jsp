@@ -10,11 +10,6 @@
     <div class="center">
         Sign Up Here
     </div>
-    <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger" role="alert">
-            <strong>Warning!</strong> ${errorMessage}
-        </div>
-    </c:if>
     <form name='f' action="${registerEndpoint}" method='POST'>
         <table>
             <tr>

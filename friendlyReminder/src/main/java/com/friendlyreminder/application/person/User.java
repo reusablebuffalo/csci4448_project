@@ -66,5 +66,4 @@ public class User extends Person {
         this.username = username;
     }
 
-
 }
