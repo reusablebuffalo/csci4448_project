@@ -20,6 +20,7 @@ public class Contact extends Person {
     private List<CommunicationEvent> communicationEvents;
 
     public Contact(){
+        super();
         communicationEvents = new ArrayList<>();
     }
 

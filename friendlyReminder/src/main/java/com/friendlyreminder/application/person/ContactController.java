@@ -1,18 +1,25 @@
 package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.book.ContactBook;
+import com.friendlyreminder.application.book.ContactBookRepository;
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.event.CommunicationEventRepository;
 
+import com.friendlyreminder.application.util.RelativeImportance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping(path="/contacts") // This means URL's start with /contacts
@@ -23,12 +30,15 @@ public class ContactController {
     private final ContactRepository contactRepository;
     private final CommunicationEventRepository communicationEventRepository;
     private final UserRepository userRepository;
+    private final ContactBookRepository contactBookRepository;
 
     @Autowired
-    public ContactController(ContactRepository contactRepository, CommunicationEventRepository communicationEventRepository, UserRepository userRepository) {
+    public ContactController(ContactRepository contactRepository, CommunicationEventRepository communicationEventRepository,
+                             UserRepository userRepository, ContactBookRepository contactBookRepository) {
         this.contactRepository = contactRepository;
         this.communicationEventRepository = communicationEventRepository;
         this.userRepository = userRepository;
+        this.contactBookRepository = contactBookRepository;
     }
 
     @GetMapping(path="/add") // Map ONLY GET Requests

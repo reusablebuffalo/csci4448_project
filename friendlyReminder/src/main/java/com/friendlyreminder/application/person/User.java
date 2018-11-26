@@ -8,6 +8,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity // This tells Hibernate to make a table out of this class
 @Table(name = "users")
@@ -20,12 +21,13 @@ public class User extends Person {
     @OneToMany
     private List<ContactBook> contactBookList;
 
-    public User(){
+    private User(){ // this default constructor should never be called since we require that Users have username and password
+        super();
         contactBookList = new ArrayList<>();
     }
 
     public User(String username, String password){
-        contactBookList = new ArrayList<>();
+        this();
         setUsername(username);
         changePassword(password,password);
     }
@@ -56,6 +58,13 @@ public class User extends Person {
 
     public List<ContactBook> getContactBookList() {
         return contactBookList;
+    }
+
+    public Optional<ContactBook> getContactBookById(Integer id){
+        for (ContactBook book: contactBookList
+             ) { if (book.getId().equals(id)) return Optional.of(book);
+        }
+        return Optional.empty();
     }
 
     public String getUsername() {

@@ -23,9 +23,8 @@ public class CommunicationEvent {
     @Embedded
     private DateTime dateTime;
 
-    public CommunicationEvent (){
+    private CommunicationEvent (){} // require dateTime, note, communcationType
 
-    }
     public CommunicationEvent(DateTime dateTime, String note, String communicationType){
         setDateTime(dateTime);
         setNote(note);

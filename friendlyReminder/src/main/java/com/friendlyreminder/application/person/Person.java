@@ -20,6 +20,12 @@ public abstract class Person {
 
     private String notes;
 
+    public Person(){
+        setFirstName("");
+        setLastName("");
+        setEmailAddress("");
+        setNotes("");
+    }
     public Integer getId() {
         return id;
     }
