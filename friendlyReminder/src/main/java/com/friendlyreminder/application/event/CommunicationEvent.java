@@ -23,12 +23,16 @@ public class CommunicationEvent {
     @Embedded
     private DateTime dateTime;
 
-    private CommunicationEvent (){} // require dateTime, note, communcationType
+    private CommunicationEvent (){} // require dateTime, note, communicationType
 
     public CommunicationEvent(DateTime dateTime, String note, String communicationType){
         setDateTime(dateTime);
         setNote(note);
         setCommunicationType(communicationType);
+    }
+
+    public String getDateAsString(){
+        return String.format("%s-%s-%s",dateTime.getMonth(),dateTime.getDay(),dateTime.getYear());
     }
 
     public DateTime getDateTime() {

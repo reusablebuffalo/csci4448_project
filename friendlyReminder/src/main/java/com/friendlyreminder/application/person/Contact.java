@@ -1,6 +1,7 @@
 package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.event.CommunicationEvent;
+import com.friendlyreminder.application.sorter.CommunicationEventSortingStrategy;
 import com.friendlyreminder.application.util.RelativeImportance;
 
 import javax.persistence.*;
@@ -19,13 +20,25 @@ public class Contact extends Person {
     @OneToMany
     private List<CommunicationEvent> communicationEvents;
 
+    @Enumerated
+    private CommunicationEventSortingStrategy communicationEventSortingStrategy;
+
     public Contact(){
         super();
-        communicationEvents = new ArrayList<>();
+        this.communicationEventSortingStrategy = CommunicationEventSortingStrategy.ByDate;
+        this.communicationEvents = new ArrayList<>();
     }
 
+    /**
+     * This method adds a communication event to a contact's list of communication events
+     * then sorts the list using the class's {@link CommunicationEventSortingStrategy}, which can be set/changed
+     * @param event CommunicationEvent to add to this contact
+     */
     public void addCommunicationEvent(CommunicationEvent event){
-        communicationEvents.add(event);
+        this.communicationEvents.add(event);
+        System.out.println(communicationEvents.toString());
+        System.out.println(this.communicationEventSortingStrategy.toString());
+        this.communicationEventSortingStrategy.sortList(this.communicationEvents);
     }
 
     public void removeCommunicationEvent(Integer id){

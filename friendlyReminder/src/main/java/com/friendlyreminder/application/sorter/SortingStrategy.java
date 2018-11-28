@@ -3,7 +3,7 @@ package com.friendlyreminder.application.sorter;
 import java.util.List;
 
 // interface for sorting strategy
-public interface Sorter<E> {
+public interface SortingStrategy<E> {
 
-    List<E> sortList(List<E> list);
+    void sortList(List<E> list);
 }

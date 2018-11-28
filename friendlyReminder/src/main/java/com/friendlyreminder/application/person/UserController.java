@@ -2,10 +2,14 @@ package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.book.ContactBook;
 import com.friendlyreminder.application.book.ContactBookRepository;
+import com.friendlyreminder.application.event.CommunicationEvent;
+import com.friendlyreminder.application.event.CommunicationEventRepository;
+import com.friendlyreminder.application.util.DateTime;
 import com.friendlyreminder.application.util.RelativeImportance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -27,14 +30,17 @@ public class UserController {
 
     private final ContactRepository contactRepository;
 
+    private final CommunicationEventRepository communicationEventRepository;
+
     public static final String LOGGED_IN_USER_ID_SESSION_ATTRIBUTE_NAME = "loggedInUserId";
 
 
     @Autowired
-    public UserController(UserRepository userRepository, ContactBookRepository contactBookRepository, ContactRepository contactRepository) {
+    public UserController(UserRepository userRepository, ContactBookRepository contactBookRepository, ContactRepository contactRepository, CommunicationEventRepository communicationEventRepository) {
         this.userRepository = userRepository;
         this.contactBookRepository = contactBookRepository;
         this.contactRepository = contactRepository;
+        this.communicationEventRepository = communicationEventRepository;
     }
 
     @RequestMapping(path="/addBook")
@@ -133,7 +139,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/updateContact.do")
-    public String addContactToContactBook(RedirectAttributes redirectAttributes, HttpSession httpSession, Model model,
+    public String updateContactInContactBook(RedirectAttributes redirectAttributes, HttpSession httpSession, Model model,
                                           @RequestParam Integer contactBookId,
                                           @RequestParam RelativeImportance importance,
                                           @RequestParam String contactFirstName,
@@ -215,6 +221,59 @@ public class UserController {
             model.addAttribute("errorMessage","Something went wrong when trying to view contact!");
             return openBook(contactBookId,httpSession,redirectAttributes,model);
         }
+    }
+
+    @GetMapping(path = "/addEvent")
+    public String addEvent(@RequestParam Integer contactId,
+                           @RequestParam Integer contactBookId,
+                           Model model){
+        model.addAttribute("contactId", contactId);
+        model.addAttribute("contactBookId", contactBookId);
+        return "addEvent";
+    }
+
+    @PostMapping(path = "/addEvent.do")
+    public String addEventToContact(@RequestParam Integer contactId,
+                           @RequestParam Integer contactBookId,
+                           @RequestParam String eventDate,
+                           @RequestParam String eventType,
+                           @RequestParam String eventNotes,
+                           Model model, RedirectAttributes redirectAttributes, HttpSession httpSession){
+        String[] yearMonthDay = StringUtils.tokenizeToStringArray(eventDate,"-");
+        if(yearMonthDay == null || yearMonthDay.length != 3){
+            model.addAttribute("errorMessage","Incorrect Date! Can not create event!");
+            return viewContact(contactId,contactBookId,model,redirectAttributes,httpSession);
+        }
+        Optional<Contact> contactOptional = contactRepository.findById(contactId);
+        if(!contactOptional.isPresent()){
+            model.addAttribute("errorMessage","Could not add event to contact: contact does not exist!");
+            return viewContact(contactId,contactBookId,model,redirectAttributes,httpSession);
+        }
+        Contact contactToAddEventTo = contactOptional.get();
+        DateTime date = new DateTime(Integer.valueOf(yearMonthDay[2]),Integer.valueOf(yearMonthDay[1]),Integer.valueOf(yearMonthDay[0]));
+        CommunicationEvent newEvent = new CommunicationEvent(date,eventNotes,eventType);
+        communicationEventRepository.save(newEvent);
+        contactToAddEventTo.addCommunicationEvent(newEvent);
+        contactRepository.save(contactToAddEventTo);
+        model.addAttribute("successMessage","Successfully added event!");
+        return viewContact(contactId,contactBookId,model,redirectAttributes,httpSession);
+    }
+
+    @GetMapping(path = "/deleteEvent")
+    public String deleteEvent(@RequestParam Integer eventId,
+                           @RequestParam Integer contactId,
+                           @RequestParam Integer contactBookId,
+                           Model model, HttpSession httpSession, RedirectAttributes redirectAttributes){
+
+        Optional<Contact> contactOptional = contactRepository.findById(contactId);
+        if(contactOptional.isPresent()){
+            Contact contact = contactOptional.get();
+            contact.removeCommunicationEvent(eventId);
+            contactRepository.save(contact);
+        }
+        communicationEventRepository.deleteById(eventId);
+        model.addAttribute("successMessage", "Deleted event!");
+        return viewContact(contactId,contactBookId,model,redirectAttributes,httpSession);
     }
 
     @GetMapping(path="/all")

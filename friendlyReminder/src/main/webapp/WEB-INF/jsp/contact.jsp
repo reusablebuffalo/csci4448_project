@@ -7,6 +7,7 @@
         <spring:param name="contactBookId" value="${contactBookId}"/>
     </spring:url>
     <spring:url value="/users/addEvent" var = "addEventEndpoint">
+        <spring:param name="contactBookId" value="${contactBookId}"/>
         <spring:param name="contactId" value="${contact.id}"/>
     </spring:url>
     <spring:url value="/users/deleteEvent" var = "deleteEventBase"/>
@@ -50,18 +51,19 @@
         </tr>
         <c:forEach var="event" items="${contact.communicationEvents}">
             <tr>
-                <td> 1-1-1 </td>
-                <td> Call </td>
+                <td> ${event.dateAsString} </td>
+                <td> ${event.communicationType} </td>
                 <td>${event.note}</td>
                 <c:url var="deleteEventLink" value="${deleteEventBase}">
                     <c:param name="eventId" value="${event.id}"/>
                     <c:param name="contactId" value="${contact.id}"/>
+                    <c:param name ="contactBookId" value="${contactBookId}"/>
                 </c:url>
                 <td> <a href="${deleteEventLink}"> Delete </a> </td>
             </tr>
         </c:forEach>
         <tr>
-            <td colspan="2"> <a href="${addEventEndpoint}">Add New Contact</a></td>
+            <td colspan="2"> <a href="${addEventEndpoint}">Add New Communication Event</a></td>
             <td colspan="2"> <a href="${goBackEndpoint}"> Go Back </a> </td>
         </tr>
     </table>

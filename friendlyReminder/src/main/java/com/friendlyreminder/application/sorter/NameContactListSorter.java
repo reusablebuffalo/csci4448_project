@@ -7,7 +7,5 @@ import java.util.List;
 public class NameContactListSorter extends ContactListSorter {
 
     @Override
-    public List<Contact> sortList(List<Contact> list) {
-        return null;
-    }
+    public void sortList(List<Contact> list) {}
 }
