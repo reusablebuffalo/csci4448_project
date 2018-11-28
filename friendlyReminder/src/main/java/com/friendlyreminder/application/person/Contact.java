@@ -2,6 +2,7 @@ package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.sorter.CommunicationEventSortingStrategy;
+import com.friendlyreminder.application.util.DateTime;
 import com.friendlyreminder.application.util.RelativeImportance;
 
 import javax.persistence.*;
@@ -25,7 +26,7 @@ public class Contact extends Person {
 
     public Contact(){
         super();
-        this.communicationEventSortingStrategy = CommunicationEventSortingStrategy.ByDate;
+        this.communicationEventSortingStrategy = CommunicationEventSortingStrategy.ByDateDescending;
         this.communicationEvents = new ArrayList<>();
     }
 
@@ -36,13 +37,21 @@ public class Contact extends Person {
      */
     public void addCommunicationEvent(CommunicationEvent event){
         this.communicationEvents.add(event);
-        System.out.println(communicationEvents.toString());
-        System.out.println(this.communicationEventSortingStrategy.toString());
         this.communicationEventSortingStrategy.sortList(this.communicationEvents);
     }
 
-    public void removeCommunicationEvent(Integer id){
-        communicationEvents.removeIf(event -> event.getId().equals(id));
+    public String getLastContactDate(){
+        if(getCommunicationEvents().isEmpty()){
+            return "n/a";
+        }
+        CommunicationEventSortingStrategy.ByDateDescending.sortList(getCommunicationEvents());
+        String lastContactDate = getCommunicationEvents().get(0).getDateAsString();
+        getCommunicationEventSortingStrategy().sortList(getCommunicationEvents());
+        return lastContactDate;
+    }
+
+    public void removeCommunicationEvent(Integer eventId){
+        communicationEvents.removeIf(event -> event.getId().equals(eventId));
     }
 
     public List<CommunicationEvent> getCommunicationEvents() {
@@ -63,5 +72,13 @@ public class Contact extends Person {
 
     public void setRelativeImportance(RelativeImportance relativeImportance) {
         this.relativeImportance = relativeImportance;
+    }
+
+    public CommunicationEventSortingStrategy getCommunicationEventSortingStrategy() {
+        return communicationEventSortingStrategy;
+    }
+
+    public void setCommunicationEventSortingStrategy(CommunicationEventSortingStrategy communicationEventSortingStrategy) {
+        this.communicationEventSortingStrategy = communicationEventSortingStrategy;
     }
 }

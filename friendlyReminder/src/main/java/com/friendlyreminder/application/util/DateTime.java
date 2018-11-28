@@ -63,4 +63,9 @@ public class DateTime {
     public void setYear(Integer year) {
         this.year = year;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s-%s-%s",this.getMonth(),this.getDay(),this.getYear());
+    }
 }

@@ -34,11 +34,11 @@
             <td><a href="${goBackEndpoint}">Go Back</a></td>
         </tr>
     </table>
-    Type:
-    <select name="eventType" form='eventForm'>
-    <option value="Text">Text</option>
-    <option value="Call">Call</option>
-    <option value="Email">Email</option>
+    Communication Type:
+    <select name='eventType' form='eventForm'>
+        <c:forEach items="${communicationTypes}" var="communicationType">
+                <option value="${communicationType}">${communicationType}</option>
+        </c:forEach>
     </select>
 </form>
 </body>

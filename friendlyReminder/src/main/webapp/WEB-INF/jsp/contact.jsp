@@ -15,8 +15,8 @@
 <html lang="en">
 <body>
 <div class="center">
-    <h4>Contact Info for ${contact.firstName} ${contact.lastName}</h4>
-    <table border="1">
+    <h5>Contact Info for ${contact.firstName} ${contact.lastName}</h5>
+    <table align="center" border="1">
         <tr>
             <td>First Name:</td>
             <td>${contact.firstName}</td>
@@ -42,7 +42,10 @@
             <td>${contact.relativeImportance}</td>
         </tr>
     </table>
-    <table border="1">
+</div>
+<div class="center">
+        <h5>Communication Events</h5>
+    <table align="center" border="1">
         <tr>
             <th>Date</th>
             <th>Type</th>

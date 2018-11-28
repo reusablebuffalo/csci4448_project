@@ -26,7 +26,7 @@
         <c:forEach var="contact" items="${contactBook.contactList}">
             <tr>
                 <td> <c:out value="${contact.firstName}"/> </td>
-                <td>Never</td>
+                <td> <c:out value="${contact.lastContactDate}"/> </td>
                 <c:url var="deleteContactLink" value="${deleteContactBase}">
                     <c:param name="contactId" value="${contact.id}"/>
                     <c:param name="contactBookId" value="${contactBook.id}"/>

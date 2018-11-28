@@ -32,7 +32,7 @@ public class CommunicationEvent {
     }
 
     public String getDateAsString(){
-        return String.format("%s-%s-%s",dateTime.getMonth(),dateTime.getDay(),dateTime.getYear());
+        return this.dateTime.toString();
     }
 
     public DateTime getDateTime() {

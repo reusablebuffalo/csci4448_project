@@ -41,7 +41,7 @@ public class ApplicationTests {
 
     @Test
     public void sortsList(){
-        CommunicationEventSortingStrategy communicationEventSortingStrategy= CommunicationEventSortingStrategy.ByDate;
+        CommunicationEventSortingStrategy communicationEventSortingStrategy= CommunicationEventSortingStrategy.ByDateDescending;
         List<CommunicationEvent> testList = Arrays.asList(testEvent5,testEvent1,testEvent2,testEvent3,testEvent4);
         List<CommunicationEvent> expectedList = Arrays.asList(testEvent5,testEvent4,testEvent3,testEvent2,testEvent1);
         communicationEventSortingStrategy.sortList(testList);

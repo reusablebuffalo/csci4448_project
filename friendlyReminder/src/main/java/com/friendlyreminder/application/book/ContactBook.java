@@ -1,8 +1,6 @@
 package com.friendlyreminder.application.book;
 
 import com.friendlyreminder.application.person.Contact;
-import com.friendlyreminder.application.sorter.ContactListSorter;
-import com.friendlyreminder.application.sorter.WeightedRelevanceContactListSorter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -4,6 +4,7 @@ import com.friendlyreminder.application.book.ContactBook;
 import com.friendlyreminder.application.book.ContactBookRepository;
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.event.CommunicationEventRepository;
+import com.friendlyreminder.application.util.CommunicationType;
 import com.friendlyreminder.application.util.DateTime;
 import com.friendlyreminder.application.util.RelativeImportance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,6 +230,7 @@ public class UserController {
                            Model model){
         model.addAttribute("contactId", contactId);
         model.addAttribute("contactBookId", contactBookId);
+        model.addAttribute("communicationTypes", CommunicationType.values());
         return "addEvent";
     }
 
@@ -250,7 +252,7 @@ public class UserController {
             return viewContact(contactId,contactBookId,model,redirectAttributes,httpSession);
         }
         Contact contactToAddEventTo = contactOptional.get();
-        DateTime date = new DateTime(Integer.valueOf(yearMonthDay[2]),Integer.valueOf(yearMonthDay[1]),Integer.valueOf(yearMonthDay[0]));
+        DateTime date = new DateTime(Integer.valueOf(yearMonthDay[1]),Integer.valueOf(yearMonthDay[2]),Integer.valueOf(yearMonthDay[0]));
         CommunicationEvent newEvent = new CommunicationEvent(date,eventNotes,eventType);
         communicationEventRepository.save(newEvent);
         contactToAddEventTo.addCommunicationEvent(newEvent);
