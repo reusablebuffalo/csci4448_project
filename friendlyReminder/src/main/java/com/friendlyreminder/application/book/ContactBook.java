@@ -1,8 +1,10 @@
 package com.friendlyreminder.application.book;
 
 import com.friendlyreminder.application.person.Contact;
+import com.friendlyreminder.application.sorter.ContactListSortingStrategy;
 
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,31 +26,49 @@ public class ContactBook {
     @OneToMany
     private List<Contact> contactList;
 
-//    @Transient // we don't need to persist this
-//    private transient ContactListSorter contactListSorter;
+    @Enumerated
+    private ContactListSortingStrategy sortingStrategy;
 
+    /**
+     * Constructs ContactBook with a name
+     * @param name {@link String} name of ContactBook
+     */
     public ContactBook(String name){
         this();
-        this.name = name;
+        setName(name);
     }
 
+    /**
+     * Default constructor for ContactBook
+     * - default name = ""
+     * - initializes contactList to empty list
+     * - sets default {@link ContactListSortingStrategy} to {@literal ByWeightedRelevance}
+     *
+     */
     public ContactBook(){
+        setName("");
         contactList = new ArrayList<>();
-//        contactListSorter = new WeightedRelevanceContactListSorter(); // default sorter
+        setSortingStrategy(ContactListSortingStrategy.ByWeightedRelevance);
     }
 
+    /**
+     * Adds new contact to list of contacts and then sorts the list according to current {@link ContactListSortingStrategy}
+     * @param newContact {@link Contact} to add to this ContactBook's list of contacts
+     */
     public void addContact(Contact newContact){
         contactList.add(newContact);
-//        contactList = contactListSorter.sortList(contactList); // sort after adding
+        sortingStrategy.sortList(contactList);
     }
 
-    public void removeContact(Integer id){
-        contactList.removeIf(contact -> contact.getId().equals(id));
+    /**
+     * Remove contact (identified by unique id) from list. If more than one contact with same id, both are removed
+     * @param contactId {@link Integer} unique id for contact for be removed from contactList
+     */
+    public void removeContact(Integer contactId){
+        contactList.removeIf(contact -> contact.getId().equals(contactId));
     }
 
     // getters and setters
-
-
     public Integer getId() {
         return id;
     }
@@ -69,11 +89,13 @@ public class ContactBook {
         return contactList;
     }
 
-//    public ContactListSorter getContactListSorter() {
-//        return contactListSorter;
-//    }
-//
-//    public void setContactListSorter(ContactListSorter contactListSorter) {
-//        this.contactListSorter = contactListSorter;
-//    }
+    public ContactListSortingStrategy getSortingStrategy() {
+        return sortingStrategy;
+    }
+
+    public void setSortingStrategy(ContactListSortingStrategy sortingStrategy) {
+        this.sortingStrategy = sortingStrategy;
+        this.sortingStrategy.sortList(contactList);
+
+    }
 }

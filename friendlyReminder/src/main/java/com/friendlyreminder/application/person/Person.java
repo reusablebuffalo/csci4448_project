@@ -20,11 +20,21 @@ public abstract class Person {
 
     private String notes;
 
+    /**
+     * Default Person constructor.
+     */
     public Person(){
         setFirstName("");
         setLastName("");
         setEmailAddress("");
         setNotes("");
+    }
+
+    public Person(String firstName, String lastName, String emailAddress, String notes){
+        setFirstName(firstName);
+        setLastName(lastName);
+        setEmailAddress(emailAddress);
+        setNotes(notes);
     }
     public Integer getId() {
         return id;

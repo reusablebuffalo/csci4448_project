@@ -2,7 +2,6 @@ package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.sorter.CommunicationEventSortingStrategy;
-import com.friendlyreminder.application.util.DateTime;
 import com.friendlyreminder.application.util.RelativeImportance;
 
 import javax.persistence.*;
@@ -22,12 +21,25 @@ public class Contact extends Person {
     private List<CommunicationEvent> communicationEvents;
 
     @Enumerated
-    private CommunicationEventSortingStrategy communicationEventSortingStrategy;
+    private CommunicationEventSortingStrategy sortingStrategy;
 
+    /**
+     * Default constructor for Contact.
+     * Sets default sortingStrategy {@link CommunicationEventSortingStrategy} to {@code ByDateDescending}
+     * Initializes communication events to empty list
+     */
     public Contact(){
         super();
-        this.communicationEventSortingStrategy = CommunicationEventSortingStrategy.ByDateDescending;
+        this.sortingStrategy = CommunicationEventSortingStrategy.ByDateDescending;
         this.communicationEvents = new ArrayList<>();
+    }
+
+    public Contact(String firstName, String lastName, String emailAddress, String notes, String phoneNumber, RelativeImportance relativeImportance){
+        super(firstName, lastName, emailAddress, notes);
+        this.sortingStrategy = CommunicationEventSortingStrategy.ByDateDescending;
+        this.communicationEvents = new ArrayList<>();
+        setPhoneNumber(phoneNumber);
+        setRelativeImportance(relativeImportance);
     }
 
     /**
@@ -36,25 +48,34 @@ public class Contact extends Person {
      * @param event CommunicationEvent to add to this contact
      */
     public void addCommunicationEvent(CommunicationEvent event){
-        this.communicationEvents.add(event);
-        this.communicationEventSortingStrategy.sortList(this.communicationEvents);
+        communicationEvents.add(event);
+        sortingStrategy.sortList(communicationEvents);
     }
 
+    /**
+     * Finds last date this contact was communicated with
+     * @return last date of contact as (MM-DD-YYYY) or "n/a" if never been contacted
+     */
     public String getLastContactDate(){
         if(getCommunicationEvents().isEmpty()){
             return "n/a";
         }
         CommunicationEventSortingStrategy.ByDateDescending.sortList(getCommunicationEvents());
         String lastContactDate = getCommunicationEvents().get(0).getDateAsString();
-        getCommunicationEventSortingStrategy().sortList(getCommunicationEvents());
+        sortingStrategy.sortList(getCommunicationEvents());
         return lastContactDate;
     }
 
+    /**
+     * Removes specific communication event from this contact's list of communication events
+     * @param eventId unique id of the communication event to remove from list of events
+     */
     public void removeCommunicationEvent(Integer eventId){
         communicationEvents.removeIf(event -> event.getId().equals(eventId));
     }
 
     public List<CommunicationEvent> getCommunicationEvents() {
+        sortingStrategy.sortList(communicationEvents);
         return communicationEvents;
     }
 
@@ -74,11 +95,11 @@ public class Contact extends Person {
         this.relativeImportance = relativeImportance;
     }
 
-    public CommunicationEventSortingStrategy getCommunicationEventSortingStrategy() {
-        return communicationEventSortingStrategy;
+    public CommunicationEventSortingStrategy getSortingStrategy() {
+        return sortingStrategy;
     }
 
-    public void setCommunicationEventSortingStrategy(CommunicationEventSortingStrategy communicationEventSortingStrategy) {
-        this.communicationEventSortingStrategy = communicationEventSortingStrategy;
+    public void setSortingStrategy(CommunicationEventSortingStrategy sortingStrategy) {
+        this.sortingStrategy = sortingStrategy;
     }
 }

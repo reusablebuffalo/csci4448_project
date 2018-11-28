@@ -1,13 +1,11 @@
 package com.friendlyreminder.application.event;
 
-import com.friendlyreminder.application.util.DateTime;
-
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Calendar;
 
 @Entity
 @Table(name = "communicationevents")
@@ -20,27 +18,26 @@ public class CommunicationEvent {
 
     private String communicationType;
 
-    @Embedded
-    private DateTime dateTime;
+    private Calendar calendarDate;
 
     private CommunicationEvent (){} // require dateTime, note, communicationType
 
-    public CommunicationEvent(DateTime dateTime, String note, String communicationType){
-        setDateTime(dateTime);
+    public CommunicationEvent(Calendar calendarDate, String note, String communicationType){
+        setCalendarDate(calendarDate);
         setNote(note);
         setCommunicationType(communicationType);
     }
 
     public String getDateAsString(){
-        return this.dateTime.toString();
+        return String.format("%s-%s-%s",calendarDate.get(Calendar.MONTH),calendarDate.get(Calendar.DAY_OF_MONTH),calendarDate.get(Calendar.YEAR));
     }
 
-    public DateTime getDateTime() {
-        return dateTime;
+    public Calendar getCalendarDate() {
+        return calendarDate;
     }
 
-    public void setDateTime(DateTime dateTime) {
-        this.dateTime = dateTime;
+    public void setCalendarDate(Calendar calendarDate) {
+        this.calendarDate = calendarDate;
     }
 
     public Integer getId() {

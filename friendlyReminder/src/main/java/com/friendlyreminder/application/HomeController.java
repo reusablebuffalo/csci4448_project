@@ -16,30 +16,41 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * Spring Controller that handles landing page, login, logout, and sign-up
+ */
 @Controller
+@RequestMapping(path = "/")
 public class HomeController {
 
     private final UserRepository userRepository;
+
+    private static final String LOGGED_IN_USER_ID_SESSION_ATTRIBUTE_NAME = "loggedInUserId";
 
     @Autowired
     public HomeController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    @Value("${home.author}")
-    private String author;
-
-    @RequestMapping("/")
+    /**
+     * HomeController method that handles welcome/landing page (requests to '/')
+     * @param httpSession current session that contains session attributes
+     * @param model model object with model attributes used in displaying view
+     * @return {@link String} name of view file to display
+     */
+    @RequestMapping("")
     public String welcome(HttpSession httpSession, Model model) {
-        Integer userId = UserController.getUserIdFromSession(httpSession);
+        Integer userId = getUserIdFromSession(httpSession);
         if(userId != null) {
             return "redirect:/home";
         }
-        model.addAttribute("author", author);
         return "welcome";
     }
 
+    /**
+     * HomeController method that handles requests to view signUp ('/signUp')
+     * @return filename of signUp view to display
+     */
     @RequestMapping("/signUp")
     public String signUp(){
         return "signUp";
@@ -89,18 +100,18 @@ public class HomeController {
             redirectAttributes.addFlashAttribute("errorMessage", "Password is Incorrect!");
             return "redirect:/login";
         }
-        UserController.setSessionLoggedInUserId(httpSession, userList.get(0).getId());
+        setSessionLoggedInUserId(httpSession, userList.get(0).getId());
         return "redirect:/home";
     }
 
     @RequestMapping("/home")
     public String home(HttpSession httpSession, Model model){
-        Integer loggedInUserId = UserController.getUserIdFromSession(httpSession);
+        Integer loggedInUserId = getUserIdFromSession(httpSession);
         if(loggedInUserId == null){return "redirect:/";}
 
         Optional<User> optionalUser = userRepository.findById(loggedInUserId);
         if(!optionalUser.isPresent()){
-            UserController.removeLoggedInUserIdFromSession(httpSession);
+            removeLoggedInUserIdFromSession(httpSession);
             return "redirect:/";
         }
         User loggedInUser = optionalUser.get();
@@ -111,11 +122,45 @@ public class HomeController {
         return "home";
     }
 
+    /**
+     * HomeController method that handles logout
+     * - invalidates session
+     * - redirects to landing page
+     * @param httpSession httpSession that contains login status attributes
+     * @return view filename and redirect command
+     */
     @RequestMapping("/logout")
     public String logout(HttpSession httpSession){
-        UserController.removeLoggedInUserIdFromSession(httpSession);
+        removeLoggedInUserIdFromSession(httpSession);
         httpSession.invalidate();
         return "redirect:/";
+    }
+
+    // helpers
+    /**
+     * Method to extract unique id of logged in {@link User}
+     * @param httpSession session that contains (if it exists) logged in user status
+     * @return id of user logged into current session (or null if none is logged in)
+     */
+    public static Integer getUserIdFromSession(HttpSession httpSession){
+        return (Integer) httpSession.getAttribute(LOGGED_IN_USER_ID_SESSION_ATTRIBUTE_NAME);
+    }
+
+    /**
+     * Method to set unique id of new logged in {@link User}
+     * @param httpSession session that will contain new logged in attribute
+     * @param userId userId to set
+     */
+    public static void setSessionLoggedInUserId(HttpSession httpSession, Integer userId){
+        httpSession.setAttribute(LOGGED_IN_USER_ID_SESSION_ATTRIBUTE_NAME,userId);
+    }
+
+    /**
+     * Method that removes any login status attribute from current session
+     * @param httpSession session to return logged in status attributes from (if they exist)
+     */
+    public static void removeLoggedInUserIdFromSession(HttpSession httpSession){
+        httpSession.removeAttribute(LOGGED_IN_USER_ID_SESSION_ATTRIBUTE_NAME);
     }
 
 }

@@ -6,6 +6,10 @@
     <spring:url value="/users/openBook" var="goBackEndpoint">
         <spring:param name="contactBookId" value="${contactBookId}"/>
     </spring:url>
+    <spring:url value="/users/openContact/changeSort" var="switchDateSortEndpoint">
+        <spring:param name="contactBookId" value="${contactBookId}"/>
+        <spring:param name="contactId" value="${contact.id}"/>
+    </spring:url>
     <spring:url value="/users/addEvent" var = "addEventEndpoint">
         <spring:param name="contactBookId" value="${contactBookId}"/>
         <spring:param name="contactId" value="${contact.id}"/>
@@ -45,9 +49,26 @@
 </div>
 <div class="center">
         <h5>Communication Events</h5>
-    <table align="center" border="1">
+    <table id="eventTable" align="center" border="1">
         <tr>
-            <th>Date</th>
+            <th>Date
+                <form action="${switchDateSortEndpoint}" method="GET">
+                    <input type=hidden name="contactId" value="${contact.id}"/>
+                    <input type=hidden name="contactBookId" value="${contactBookId}"/>
+                    <select name="sortingStrategy" onchange="this.form.submit()">
+                        <c:forEach items="${sortStrategies}" var="strategy">
+                            <c:choose >
+                                <c:when test="${contact.sortingStrategy == strategy}">
+                                    <option value="${strategy}" selected><c:out value="${strategy.alternateStrategyName}"/></option>
+                                </c:when>
+                                <c:when test="${contact.sortingStrategy != strategy}">
+                                    <option value="${strategy}"><c:out value="${strategy.alternateStrategyName}"/></option>
+                                </c:when>
+                            </c:choose>
+                        </c:forEach>
+                    </select>
+                </form>
+            </th>
             <th>Type</th>
             <th>Notes</th>
             <th>Options</th>

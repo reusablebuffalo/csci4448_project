@@ -18,7 +18,7 @@
         <div id="homepage" class="center">
             <h1>Friendly Reminder</h1>
             <p>Don't forget to call the people that matter!</p>
-            <h2>An App by ${author}</h2>
+            <h2>An App by Ian Smith</h2>
             <a href="${signUpEndpoint}">Sign Up</a>
             <a href="${loginEndpoint}">Login</a>
         </div>

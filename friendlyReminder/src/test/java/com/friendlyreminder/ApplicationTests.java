@@ -3,13 +3,13 @@ package com.friendlyreminder;
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.person.Contact;
 import com.friendlyreminder.application.sorter.CommunicationEventSortingStrategy;
-import com.friendlyreminder.application.util.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ApplicationTests {
@@ -25,11 +25,11 @@ public class ApplicationTests {
     @Before
     public void setUp(){
         testContact = new Contact();
-        testEvent1 =  new CommunicationEvent(new DateTime(10,10,10),"testNote","testType");
-        testEvent2 =  new CommunicationEvent(new DateTime(10,10,11),"testNote","testType");
-        testEvent3 =  new CommunicationEvent(new DateTime(10,10,12),"testNote","testType");
-        testEvent4 =  new CommunicationEvent(new DateTime(11,10,12),"testNote","testType");
-        testEvent5 =  new CommunicationEvent(new DateTime(11,11,12),"testNote","testType");
+        testEvent1 =  new CommunicationEvent(new GregorianCalendar(10, 10, 10),"testNote","testType");
+        testEvent2 =  new CommunicationEvent(new GregorianCalendar(10,10,11),"testNote","testType");
+        testEvent3 =  new CommunicationEvent(new GregorianCalendar(10,10,12),"testNote","testType");
+        testEvent4 =  new CommunicationEvent(new GregorianCalendar(11,10,12),"testNote","testType");
+        testEvent5 =  new CommunicationEvent(new GregorianCalendar(11,11,12),"testNote","testType");
 
     }
 

@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(path = "books")
 public class ContactBookController {
 
-    private final ContactBookRepository contactBookRepository;
-
-    @Autowired
-    public ContactBookController(ContactBookRepository contactBookRepository) {
-        this.contactBookRepository = contactBookRepository;
-    }
-
-    @GetMapping(path="/all")
-    public @ResponseBody Iterable<ContactBook> getAllContactBooks() {
-        // This returns a JSON or XML with the contact list
-        return contactBookRepository.findAll();
-    }
+//    private final ContactBookRepository contactBookRepository;
+//
+//    @Autowired
+//    public ContactBookController(ContactBookRepository contactBookRepository) {
+//        this.contactBookRepository = contactBookRepository;
+//    }
+//
+//    @GetMapping(path="/all")
+//    public @ResponseBody Iterable<ContactBook> getAllContactBooks() {
+//        // This returns a JSON or XML with the contact list
+//        return contactBookRepository.findAll();
+//    }
 }
