@@ -9,17 +9,17 @@ public enum RelativeImportance {
     /**
      * Medium importance
      */
-    MEDIUM(5),
+    MEDIUM(2),
     /**
      * High importance
      */
-    HIGH(10);
+    HIGH(4);
 
     public final Long relativeImportance;
 
     /**
-     * Constructs appropriate enum from integer value in [1,5,10]
-     * @param relativeImportance integer value in [1,5,10], that indicates (by increasing value) the relative importance of object
+     * Constructs appropriate enum from integer value in [1,2,4]
+     * @param relativeImportance integer value in [1,2,4], that indicates (by increasing value) the relative importance of object
      */
     RelativeImportance(long relativeImportance) {
         this.relativeImportance = relativeImportance;

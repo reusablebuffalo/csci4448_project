@@ -21,6 +21,7 @@
         <tr>
             <th>Contact</th>
             <th>Last Contact Date</th>
+            <th>Importance</th>
             <th>Options</th>
             <th>Sort By
                 <form action="${changeStrategyEndpoint}" method="GET">
@@ -44,6 +45,7 @@
             <tr>
                 <td> <c:out value="${contact.firstName}"/> <c:out value="${contact.lastName}"/> </td>
                 <td> <c:out value="${contact.lastContactDate}"/> </td>
+                <td> <c:out value="${contact.relativeImportance}"/> </td>
                 <c:url var="deleteContactLink" value="${deleteContactBase}">
                     <c:param name="contactId" value="${contact.id}"/>
                     <c:param name="contactBookId" value="${contactBook.id}"/>
