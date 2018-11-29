@@ -1,13 +1,21 @@
 package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.event.CommunicationEvent;
-import com.friendlyreminder.application.sorter.CommunicationEventSortingStrategy;
-import com.friendlyreminder.application.util.RelativeImportance;
+import com.friendlyreminder.application.sortstrategy.CommunicationEventSortingStrategy;
+import com.friendlyreminder.application.utility.RelativeImportance;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Class that represents a contact. It contains a list of {@link CommunicationEvent}s
+ * - This class is saved to Relational Database according to Hibernate annotations
+ * - The event list in the contact is sorted by one of {@link CommunicationEventSortingStrategy} strategies
+ */
 @Entity // This tells Hibernate to make a table out of this class
 @Table(name = "contacts")
 public class Contact extends Person {
@@ -22,6 +30,8 @@ public class Contact extends Person {
 
     @Enumerated
     private CommunicationEventSortingStrategy sortingStrategy;
+
+    private LocalDate mostRecentContactDate;
 
     /**
      * Default constructor for Contact.
@@ -48,6 +58,11 @@ public class Contact extends Person {
      * @param event CommunicationEvent to add to this contact
      */
     public void addCommunicationEvent(CommunicationEvent event){
+        if(mostRecentContactDate == null){
+            setMostRecentContactDate(event.getEventDate());
+        }else if(event.getEventDate().isAfter(getMostRecentContactDate())){
+            setMostRecentContactDate(event.getEventDate());
+        }
         communicationEvents.add(event);
         sortingStrategy.sortList(communicationEvents);
     }
@@ -57,13 +72,10 @@ public class Contact extends Person {
      * @return last date of contact as (MM-DD-YYYY) or "n/a" if never been contacted
      */
     public String getLastContactDate(){
-        if(getCommunicationEvents().isEmpty()){
+        if(mostRecentContactDate == null){
             return "n/a";
         }
-        CommunicationEventSortingStrategy.ByDateDescending.sortList(getCommunicationEvents());
-        String lastContactDate = getCommunicationEvents().get(0).getDateAsString();
-        sortingStrategy.sortList(getCommunicationEvents());
-        return lastContactDate;
+        return mostRecentContactDate.toString();
     }
 
     /**
@@ -72,6 +84,11 @@ public class Contact extends Person {
      */
     public void removeCommunicationEvent(Integer eventId){
         communicationEvents.removeIf(event -> event.getId().equals(eventId));
+        if(communicationEvents.isEmpty()){
+            mostRecentContactDate = null;
+        } else {
+            mostRecentContactDate = Collections.max(communicationEvents, Comparator.comparing(CommunicationEvent::getEventDate)).getEventDate();
+        }
     }
 
     public List<CommunicationEvent> getCommunicationEvents() {
@@ -101,5 +118,20 @@ public class Contact extends Person {
 
     public void setSortingStrategy(CommunicationEventSortingStrategy sortingStrategy) {
         this.sortingStrategy = sortingStrategy;
+    }
+
+    /**
+     * method to return most recent date that this contact was contacted
+     * @return {@link LocalDate} corresponding to most recent contact date, or if null {@link LocalDate}.MIN
+     */
+    public LocalDate getMostRecentContactDate() {
+        if(mostRecentContactDate == null){
+            return LocalDate.MIN; // default value (required when comparing)
+        }
+        return mostRecentContactDate;
+    }
+
+    public void setMostRecentContactDate(LocalDate mostRecentContactDate) {
+        this.mostRecentContactDate = mostRecentContactDate;
     }
 }

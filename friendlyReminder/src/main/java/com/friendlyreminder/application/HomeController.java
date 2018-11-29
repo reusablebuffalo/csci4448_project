@@ -1,10 +1,8 @@
 package com.friendlyreminder.application;
 
 import com.friendlyreminder.application.person.User;
-import com.friendlyreminder.application.person.UserController;
 import com.friendlyreminder.application.person.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +46,7 @@ public class HomeController {
     }
 
     /**
-     * HomeController method that handles requests to view signUp ('/signUp')
+     * method that handles requests to view signUp ('/signUp')
      * @return filename of signUp view to display
      */
     @RequestMapping("/signUp")
@@ -56,6 +54,16 @@ public class HomeController {
         return "signUp";
     }
 
+    /**
+     * method that handles User registration
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession contains session attrbutes, shared across session, handled by controller
+     * @param firstName name of user to
+     * @param username username identifier for registration
+     * @param password password for user registration
+     * @param confirmPassword string that should be identical to password
+     * @return filename of view to display
+     */
     @PostMapping("/signUp/register")
     public String registerUser(RedirectAttributes redirectAttributes, HttpSession httpSession, @RequestParam String firstName, @RequestParam String username, @RequestParam String password, @RequestParam String confirmPassword){
         // default flash attributes
@@ -75,19 +83,34 @@ public class HomeController {
             return "redirect:/signUp";
         }
         // default behavior (create new user)
-        User newUser = new User(username, password);
-        newUser.setFirstName(firstName);
-        userRepository.save(newUser);
-        return validateLogin(redirectAttributes, httpSession, username, password);
-//        return "redirect:/users/all";
+        try {
+            User newUser = new User(username, password);
+            newUser.setFirstName(firstName);
+            userRepository.save(newUser);
+            return validateLogin(redirectAttributes, httpSession, username, password);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e);
+            return "redirct:/signUp";
+        }
     }
 
-
+    /**
+     * method that displays login page
+     * @return filename of view for login
+     */
     @RequestMapping("/login")
-    public String login(Model model){
+    public String login(){
         return "login";
     }
 
+    /**
+     * method that validates login and adds login status to session
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session to save logged in user to
+     * @param username username of User to login
+     * @param password password to attempt validation of
+     * @return filename of view to display (if login successful show home, else return to login page)
+     */
     @PostMapping("/login/validate")
     public String validateLogin(RedirectAttributes redirectAttributes, HttpSession httpSession, @RequestParam String username, @RequestParam String password){
         List<User> userList = userRepository.findByUsername(username);
@@ -104,6 +127,12 @@ public class HomeController {
         return "redirect:/home";
     }
 
+    /**
+     * method to display home view
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @return filename of view to display (if logged in it is home, otherwise back to landing page)
+     */
     @RequestMapping("/home")
     public String home(HttpSession httpSession, Model model){
         Integer loggedInUserId = getUserIdFromSession(httpSession);

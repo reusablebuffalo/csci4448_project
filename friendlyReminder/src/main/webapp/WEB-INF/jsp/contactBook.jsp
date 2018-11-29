@@ -10,6 +10,7 @@
     <spring:url value="/users/deleteContact" var = "deleteContactBase"/>
     <spring:url value="/users/openContact" var = "openContactBase"/>
     <spring:url value="/users/updateContact" var = "updateContactBase"/>
+    <spring:url value="/users/openBook/changeSort" var="changeStrategyEndpoint"/>
 </head>
 <html lang="en">
 <body>
@@ -21,11 +22,27 @@
             <th>Contact</th>
             <th>Last Contact Date</th>
             <th>Options</th>
-            <th>Sort By</th>
+            <th>Sort By
+                <form action="${changeStrategyEndpoint}" method="GET">
+                    <input type=hidden name="contactBookId" value="${contactBook.id}"/>
+                    <select name="sortingStrategy" onchange="this.form.submit()">
+                        <c:forEach items="${sortStrategies}" var="strategy">
+                            <c:choose >
+                                <c:when test="${contactBook.sortingStrategy == strategy}">
+                                    <option value="${strategy}" selected><c:out value="${strategy.alternateStrategyName}"/></option>
+                                </c:when>
+                                <c:when test="${contactBook.sortingStrategy != strategy}">
+                                    <option value="${strategy}"><c:out value="${strategy.alternateStrategyName}"/></option>
+                                </c:when>
+                            </c:choose>
+                        </c:forEach>
+                    </select>
+                </form>
+            </th>
         </tr>
         <c:forEach var="contact" items="${contactBook.contactList}">
             <tr>
-                <td> <c:out value="${contact.firstName}"/> </td>
+                <td> <c:out value="${contact.firstName}"/> <c:out value="${contact.lastName}"/> </td>
                 <td> <c:out value="${contact.lastContactDate}"/> </td>
                 <c:url var="deleteContactLink" value="${deleteContactBase}">
                     <c:param name="contactId" value="${contact.id}"/>

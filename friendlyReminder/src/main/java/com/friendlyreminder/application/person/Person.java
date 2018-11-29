@@ -5,6 +5,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+/**
+ * Abstract class that represents a person object in the application
+ */
 @MappedSuperclass
 public abstract class Person {
 
@@ -22,6 +25,7 @@ public abstract class Person {
 
     /**
      * Default Person constructor.
+     * - firstName, lastName, emailAddress and notes all initialized to ""
      */
     public Person(){
         setFirstName("");
@@ -30,6 +34,13 @@ public abstract class Person {
         setNotes("");
     }
 
+    /**
+     * Constructor to build Person with designated members
+     * @param firstName first name of person
+     * @param lastName last name of person
+     * @param emailAddress email address of person
+     * @param notes notes about person
+     */
     public Person(String firstName, String lastName, String emailAddress, String notes){
         setFirstName(firstName);
         setLastName(lastName);
@@ -76,6 +87,10 @@ public abstract class Person {
         this.notes = notes;
     }
 
+    /**
+     * Overrides toString() method and prints firstName lastName
+     * @return "firstName lastName"
+     */
     @Override
     public String toString() {
         return getFirstName() + " " + getLastName();

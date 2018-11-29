@@ -1,4 +1,4 @@
-package com.friendlyreminder.application.util;
+package com.friendlyreminder.application.utility;
 
 public enum CommunicationType {
     /**

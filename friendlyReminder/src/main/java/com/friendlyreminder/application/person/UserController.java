@@ -1,15 +1,15 @@
 package com.friendlyreminder.application.person;
 
 import com.friendlyreminder.application.HomeController;
-import com.friendlyreminder.application.book.ContactBook;
-import com.friendlyreminder.application.book.ContactBookRepository;
+import com.friendlyreminder.application.contactbook.ContactBook;
+import com.friendlyreminder.application.contactbook.ContactBookRepository;
 import com.friendlyreminder.application.event.CommunicationEvent;
 import com.friendlyreminder.application.event.CommunicationEventRepository;
-import com.friendlyreminder.application.sorter.CommunicationEventSortingStrategy;
-import com.friendlyreminder.application.util.CommunicationType;
-import com.friendlyreminder.application.util.RelativeImportance;
+import com.friendlyreminder.application.sortstrategy.CommunicationEventSortingStrategy;
+import com.friendlyreminder.application.sortstrategy.ContactListSortingStrategy;
+import com.friendlyreminder.application.utility.CommunicationType;
+import com.friendlyreminder.application.utility.RelativeImportance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -21,13 +21,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * controller class that handles displaying all views for a logged-in user
+ * controller handles requests to add/update/delete {@link ContactBook}s,{@link Contact}s, {@link CommunicationEvent}s, and
+ * {@link com.friendlyreminder.application.sortstrategy.SortingStrategy}s
+ */
 @Controller
 @RequestMapping(path = "/users")
 public class UserController {
@@ -51,11 +55,23 @@ public class UserController {
         this.communicationEventRepository = communicationEventRepository;
     }
 
+    /**
+     * controller method to display new {@link ContactBook} creation page
+     * @return filename of view that displays new contact page
+     */
     @RequestMapping(path="/addBook")
-    public String addContactBook(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model){
+    public String addContactBook(){
         return "newBook";
     }
 
+    /**
+     * method that performs actual creation of new {@link ContactBook}
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookName name of created contactbook, passed as POST request param
+     * @return filename of view to display (if still logged in, displays User home page else landing page)
+     */
     @PostMapping(path = "/addBook.do")
     public String addContactBookToUser(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                                        @RequestParam String contactBookName){
@@ -72,6 +88,14 @@ public class UserController {
         return "redirect:/home";
     }
 
+    /**
+     * method that handles deletion of a {@link ContactBook} by id
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of contactbook to delete
+     * @return filename of view for homepage
+     */
     @GetMapping(path = "/deleteBook")
     public String deleteBook(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                              @RequestParam Integer contactBookId){
@@ -87,6 +111,44 @@ public class UserController {
         return "redirect:/home";
     }
 
+    /**
+     * method to handle changing {@link ContactBook} sortingStrategy
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of contactbook
+     * @param sortingStrategy strategy to sort this ContactBook with
+     * @return filename of view to display
+     */
+    @GetMapping(path = "/openBook/changeSort")
+    public String changeContactSort(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
+                                    @RequestParam Integer contactBookId,
+                                    @RequestParam ContactListSortingStrategy sortingStrategy){
+        Optional<User> optionalUser = getLoggedInUserFromSession(httpSession);
+        if(!optionalUser.isPresent()){
+            return authenticationErrorRedirect(redirectAttributes);
+        }
+        Optional<ContactBook> optionalContactBook = contactBookRepository.findById(contactBookId);
+        if(optionalContactBook.isPresent()){
+            ContactBook contactBook = optionalContactBook.get();
+            contactBook.setSortingStrategy(sortingStrategy);
+            contactBookRepository.save(contactBook);
+            redirectAttributes.addFlashAttribute("successMessage","sorting strategy changed!");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage","sorting strategy not changed!");
+        }
+        redirectAttributes.addAttribute("contactBookId",contactBookId);
+        return "redirect:/users/openBook";
+    }
+
+    /**
+     * method to verify login and display a contactbook's contents
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of contact book to open
+     * @return filename of view to display
+     */
     @GetMapping(path = "/openBook")
     public String viewBook(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                            @RequestParam Integer contactBookId){
@@ -95,17 +157,26 @@ public class UserController {
             return authenticationErrorRedirect(redirectAttributes);
         }
         User loggedInUser = optionalUser.get();
-        Optional<ContactBook> optionalContactBook = loggedInUser.getContactBookById(contactBookId);
+        Optional<ContactBook> optionalContactBook = contactBookRepository.findById(contactBookId);
         if(!optionalContactBook.isPresent()){
             redirectAttributes.addFlashAttribute("errorMessage","An Error Occurred While Deleting Contact Book!");
             return "redirect:/home";
         }
         ContactBook contactBook = optionalContactBook.get();
+        model.addAttribute("sortStrategies",ContactListSortingStrategy.values());
         model.addAttribute("firstName",loggedInUser.getFirstName());
         model.addAttribute("contactBook",contactBook);
         return "contactBook";
     }
 
+    /**
+     * method to display view that allows User to create new {@link Contact} for ContactBook
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of book to add contact to
+     * @return filename of view to display
+     */
     @RequestMapping(path="/addContact")
     public String addContact(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                              @RequestParam Integer contactBookId){
@@ -119,6 +190,15 @@ public class UserController {
         return "addContact";
     }
 
+    /**
+     * method to display view that allows User to make request to update existing {@link Contact} in ContactBook
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of book to add contact to
+     * @param contactId unique id of contact to update
+     * @return filename of view to display
+     */
     @RequestMapping(path="/updateContact")
     public String updateContact(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                                 @RequestParam Integer contactId, @RequestParam Integer contactBookId){
@@ -138,6 +218,21 @@ public class UserController {
         return "addContact";
     }
 
+    /**
+     * method to perform actual update of {@link Contact} in {@link ContactBook}
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of contact book to update contact in
+     * @param importance relative importance value of the contact
+     * @param contactFirstName new first name of contact
+     * @param contactLastName new last name of contact
+     * @param contactNotes new notes for contact
+     * @param contactPhoneNumber new phonenumber for contact
+     * @param contactEmailAddress new emailaddress for contact
+     * @param contactId contact to update
+     * @return filename of view to display
+     */
     @PostMapping(path = "/updateContact.do")
     public String updateContactInContactBook(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                                           @RequestParam Integer contactBookId,
@@ -169,6 +264,20 @@ public class UserController {
         return viewBook(httpSession, redirectAttributes, model,contactBookId);
     }
 
+    /**
+     * method to perform actual addtion of {@link Contact} to {@link ContactBook}
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId unique id of contact book to update contact in
+     * @param importance relative importance value of the contact
+     * @param contactFirstName new first name of contact
+     * @param contactLastName new last name of contact
+     * @param contactNotes new notes for contact
+     * @param contactPhoneNumber new phonenumber for contact
+     * @param contactEmailAddress new emailaddress for contact
+     * @return filename of view to display
+     */
     @PostMapping(path = "/addContact.do")
     public String addContactToContactBook(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                                           @RequestParam Integer contactBookId,
@@ -186,8 +295,8 @@ public class UserController {
         if(optionalContactBook.isPresent()){
             ContactBook contactBook = optionalContactBook.get();
             Contact newContact = new Contact(contactFirstName,contactLastName,contactEmailAddress,contactNotes,contactPhoneNumber,importance);
-            contactBook.addContact(newContact);
             contactRepository.save(newContact);
+            contactBook.addContact(newContact);
             contactBookRepository.save(contactBook);
             model.addAttribute("successMessage", "Contact added!");
         } else {
@@ -196,6 +305,15 @@ public class UserController {
         return viewBook(httpSession, redirectAttributes, model, contactBookId);
     }
 
+    /**
+     * method to delete to contact from specified contactbook
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactBookId contactbook to delete from
+     * @param contactId contact to delete
+     * @return filename of view to display (if logged in it will be contactBook view page otherwise landing page)
+     */
     @GetMapping(path = "/deleteContact")
     public String deleteBook(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                              @RequestParam Integer contactBookId,
@@ -215,8 +333,18 @@ public class UserController {
         return viewBook(httpSession,redirectAttributes,model,contactBookId);
     }
 
+    /**
+     * method to change sortingStrategy for events in specified contact
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactId unique id of contact to change strategy for
+     * @param contactBookId book to return to if goback option is selected
+     * @param sortingStrategy new strategy ({@link CommunicationEventSortingStrategy}
+     * @return filename of view to display (if logged in, we display contact view page else we display landing page)
+     */
     @GetMapping(path = "/openContact/changeSort")
-    public String changeSort(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
+    public String changeEventSort(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                               @RequestParam Integer contactId,
                               @RequestParam Integer contactBookId,
                               @RequestParam CommunicationEventSortingStrategy sortingStrategy){
@@ -238,6 +366,16 @@ public class UserController {
         return "redirect:/users/openContact#eventTable";
 
     }
+
+    /**
+     * method to display view to see data for a given contact
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactId unique id of contact to view
+     * @param contactBookId book that contains this contact
+     * @return filename of view to display
+     */
     @GetMapping(path = "/openContact")
     public String viewContact(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                               @RequestParam Integer contactId,
@@ -258,6 +396,15 @@ public class UserController {
         return "contact";
     }
 
+    /**
+     * method to display view that contains form to create new communication event for a given contact in a given contact book
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactId unique id of contact to add event for
+     * @param contactBookId unique id of contact book to add to
+     * @return filename of view to display
+     */
     @GetMapping(path = "/addEvent")
     public String addEvent(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                            @RequestParam Integer contactId,
@@ -272,18 +419,30 @@ public class UserController {
         return "addEvent";
     }
 
+    /**
+     * method that handles POST request to actually add new communication event to given contact
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param contactId id of contact to add event to
+     * @param contactBookId id of contact book this contact belongs to
+     * @param date parameter (passed from form) that designates which date this occurred on
+     * @param eventType parameter (passed from form) that designates type of contact (enum {@link CommunicationType}
+     * @param eventNotes parameter (passed from form) that is notes related to this event, designated by user
+     * @return filename of view to display after transaction completed (landing if not logged in, contact view page if successful)
+     */
     @PostMapping(path = "/addEvent.do")
     public String addEventToContact(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                                     @RequestParam Integer contactId,
                                     @RequestParam Integer contactBookId,
-                                    @RequestParam String eventDate,
+                                    @RequestParam(name = "eventDate") String date,
                                     @RequestParam String eventType,
                                     @RequestParam String eventNotes){
         Optional<User> optionalUser = getLoggedInUserFromSession(httpSession);
         if(!optionalUser.isPresent()){
             return authenticationErrorRedirect(redirectAttributes);
         }
-        String[] yearMonthDayStrings = StringUtils.tokenizeToStringArray(eventDate,"-");
+        String[] yearMonthDayStrings = StringUtils.tokenizeToStringArray(date,"-");
         if(yearMonthDayStrings == null || yearMonthDayStrings.length != 3){
             model.addAttribute("errorMessage","Incorrect Date! Can not create event!");
             return viewContact(httpSession,redirectAttributes,model,contactId,contactBookId);
@@ -297,9 +456,9 @@ public class UserController {
             return viewContact(httpSession,redirectAttributes,model,contactId,contactBookId);
         }
 
-        Calendar calendarDate = new GregorianCalendar(yearMonthDayInt.get(0),yearMonthDayInt.get(1),yearMonthDayInt.get(2));
+        LocalDate eventDate = LocalDate.of(yearMonthDayInt.get(0),yearMonthDayInt.get(1),yearMonthDayInt.get(2));
         Contact contactToAddEventTo = contactOptional.get();
-        CommunicationEvent newEvent = new CommunicationEvent(calendarDate,eventNotes,eventType);
+        CommunicationEvent newEvent = new CommunicationEvent(eventDate,eventNotes,eventType);
         communicationEventRepository.save(newEvent);
         contactToAddEventTo.addCommunicationEvent(newEvent);
         contactRepository.save(contactToAddEventTo);
@@ -307,6 +466,16 @@ public class UserController {
         return viewContact(httpSession,redirectAttributes,model,contactId,contactBookId);
     }
 
+    /**
+     * method that completes GET request to delete a communication event from a contact
+     * @param redirectAttributes contains attributes used by controller in redirect scenario
+     * @param httpSession session that will contain login status as attribute
+     * @param model model object with model attributes used in displaying view
+     * @param eventId unique id of event to delete
+     * @param contactId unique id of contact to delete event from
+     * @param contactBookId unique id of book this contact belongs to
+     * @return filename of view for controller to display
+     */
     @GetMapping(path = "/deleteEvent")
     public String deleteEvent(HttpSession httpSession, RedirectAttributes redirectAttributes, Model model,
                               @RequestParam Integer eventId,

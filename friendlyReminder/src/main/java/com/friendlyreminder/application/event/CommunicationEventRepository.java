@@ -2,9 +2,9 @@ package com.friendlyreminder.application.event;
 
 import org.springframework.data.repository.CrudRepository;
 
-// This will be AUTO IMPLEMENTED by Spring into a Bean called studentRepository
-// CRUD refers Create, Read, Update, Delete
-
+/**
+ * Class that is AUTO implemented by Spring into a Bean called communicationEventRepository that is passed to controllers
+ */
 public interface CommunicationEventRepository extends CrudRepository<CommunicationEvent, Integer> {
 
 }

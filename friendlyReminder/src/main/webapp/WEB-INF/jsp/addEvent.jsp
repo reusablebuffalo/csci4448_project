@@ -23,7 +23,7 @@
             <td>Date:</td>
             <td><input type="date" name="eventDate"
                        value=""
-                       min="2018-01-01"/></td>
+                       min="1970-01-01"/></td>
         </tr>
         <tr>
             <td>Notes:</td>

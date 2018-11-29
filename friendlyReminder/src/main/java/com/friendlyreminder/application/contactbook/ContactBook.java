@@ -1,7 +1,7 @@
-package com.friendlyreminder.application.book;
+package com.friendlyreminder.application.contactbook;
 
 import com.friendlyreminder.application.person.Contact;
-import com.friendlyreminder.application.sorter.ContactListSortingStrategy;
+import com.friendlyreminder.application.sortstrategy.ContactListSortingStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -13,6 +13,11 @@ import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class that represents a contact book. It contains a list of {@link Contact}s
+ * - This class is saved to Relational Database according to Hibernate annotations
+ * - The contact list in the contact book is sorted by one of {@link ContactListSortingStrategy} strategies
+ */
 @Entity // This tells Hibernate to make a table out of this class
 @Table(name = "contactbooks")
 public class ContactBook {
@@ -86,6 +91,7 @@ public class ContactBook {
     }
 
     public List<Contact> getContactList() {
+        sortingStrategy.sortList(contactList);
         return contactList;
     }
 
@@ -95,7 +101,5 @@ public class ContactBook {
 
     public void setSortingStrategy(ContactListSortingStrategy sortingStrategy) {
         this.sortingStrategy = sortingStrategy;
-        this.sortingStrategy.sortList(contactList);
-
     }
 }

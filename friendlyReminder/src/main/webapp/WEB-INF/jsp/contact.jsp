@@ -6,10 +6,7 @@
     <spring:url value="/users/openBook" var="goBackEndpoint">
         <spring:param name="contactBookId" value="${contactBookId}"/>
     </spring:url>
-    <spring:url value="/users/openContact/changeSort" var="switchDateSortEndpoint">
-        <spring:param name="contactBookId" value="${contactBookId}"/>
-        <spring:param name="contactId" value="${contact.id}"/>
-    </spring:url>
+    <spring:url value="/users/openContact/changeSort" var="changeStrategyEndpoint"/>
     <spring:url value="/users/addEvent" var = "addEventEndpoint">
         <spring:param name="contactBookId" value="${contactBookId}"/>
         <spring:param name="contactId" value="${contact.id}"/>
@@ -52,7 +49,7 @@
     <table id="eventTable" align="center" border="1">
         <tr>
             <th>Date
-                <form action="${switchDateSortEndpoint}" method="GET">
+                <form action="${changeStrategyEndpoint}" method="GET">
                     <input type=hidden name="contactId" value="${contact.id}"/>
                     <input type=hidden name="contactBookId" value="${contactBookId}"/>
                     <select name="sortingStrategy" onchange="this.form.submit()">
