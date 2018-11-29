@@ -9,4 +9,4 @@ FriendlyReminder
 * [Part4 Progress Report \#2 Video Link](Smith_FriendlyReminder_Part4.txt)
 * [Part5 Presentation Video Link](Smith_FriendlyReminder_Part5.txt)
 * [Part6 Final Report](Smith_FriendlyReminder_Part6.pdf)
-* [Final JavaDocs](JavaDoc/index.html)
+* [Final JavaDocs](JavaDocs/)

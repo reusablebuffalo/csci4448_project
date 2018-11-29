@@ -1,5 +1,7 @@
 package com.friendlyreminder.application.event;
 
+import com.friendlyreminder.application.utility.CommunicationType;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,7 +22,7 @@ public class CommunicationEvent {
 
     private String note;
 
-    private String communicationType;
+    private CommunicationType communicationType;
 
     private LocalDate eventDate;
 
@@ -35,7 +37,7 @@ public class CommunicationEvent {
      * @param note notes about this event, general information
      * @param communicationType enumerable, specifies type of communication that defines this event
      */
-    public CommunicationEvent(LocalDate eventDate, String note, String communicationType){
+    public CommunicationEvent(LocalDate eventDate, String note, CommunicationType communicationType){
         setEventDate(eventDate);
         setNote(note);
         setCommunicationType(communicationType);
@@ -74,11 +76,11 @@ public class CommunicationEvent {
         this.note = note;
     }
 
-    public String getCommunicationType() {
+    public CommunicationType getCommunicationType() {
         return communicationType;
     }
 
-    public void setCommunicationType(String communicationType) {
+    public void setCommunicationType(CommunicationType communicationType) {
         this.communicationType = communicationType;
     }
 }

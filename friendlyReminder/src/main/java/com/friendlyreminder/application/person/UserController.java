@@ -458,7 +458,7 @@ public class UserController {
 
         LocalDate eventDate = LocalDate.of(yearMonthDayInt.get(0),yearMonthDayInt.get(1),yearMonthDayInt.get(2));
         Contact contactToAddEventTo = contactOptional.get();
-        CommunicationEvent newEvent = new CommunicationEvent(eventDate,eventNotes,eventType);
+        CommunicationEvent newEvent = new CommunicationEvent(eventDate,eventNotes,CommunicationType.valueOf(eventType));
         communicationEventRepository.save(newEvent);
         contactToAddEventTo.addCommunicationEvent(newEvent);
         contactRepository.save(contactToAddEventTo);
